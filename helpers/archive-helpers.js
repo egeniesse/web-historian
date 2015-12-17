@@ -70,7 +70,12 @@ exports.addUrlToList = function(url, callback) {
     if(err){
       callback(err);
     }else{
-      var newContent  = content.split("\n").concat(url).join('\n');
+      var newContent = ""
+      if(content ===  ""){
+        newContent = url + '\n'
+      }else{        
+      newContent  = content.split("\n").concat(url + '\n').join('\n');
+      }
       fs.writeFile(exports.paths.list, newContent , "utf-8", function(err){
         if(err){
           callback(err);

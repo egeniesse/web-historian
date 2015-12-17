@@ -9,12 +9,9 @@ var header = [
 
 
 exports.handleRequest = function (req, res) {
-  // var header = "content-type", 'application/json';
   var statusCode = 200;
   var url = req.url
-  // archive.isUrlInList("google.com", function(bool){
-  //   console.log(bool)
-  // });
+
   if(req.method === "GET"){
 
     if(url === "/"){
@@ -28,34 +25,31 @@ exports.handleRequest = function (req, res) {
     //if not root url  
     }else{
       archive.isUrlArchived(url.slice(1), function(bool){
-        console.log(url.slice(1), "url")
         if(!bool){
           resEnd(res,null, 404);
         } else {
-          console.log("URL is in archive")
           archive.returnsArchive(url, function(content){
             resEnd(res, content, statusCode);
           });
         }
       });
-
-      // archive.isUrlInList(url , function(result){
-      //   if(result){
-      //     fs.readFile(exports.paths.archivedSites + url, "utf-8", function(err, content){
-      //       if(err){
-      //         callback(err);
-      //       }else{
-      //         callback(content)
-      //       }
-      //     })
-      //   }else{
-      //     archive.addUrlToList(url);
-      //     //archive it
-      //   }  
-      // })
     }
   }
-  // res.end(archive.paths.list);
+
+  if(req.method === "POST"){
+    var str = "";
+    req.on("data", function(data){
+      str += data;
+    });
+
+    req.on("end", function(){
+      console.log(str.slice(4), "str")
+
+      archive.addUrlToList(str.slice(4), function(){
+        resEnd(res, null, 302);
+      });
+    });
+  }
 };
 
 var resEnd = function(res, content, statusCode){
