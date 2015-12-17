@@ -29,30 +29,111 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+exports.returnsArchive = function(url, callback){
+  fs.readFile(exports.paths.archivedSites + "/" + url, function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      callback(content);
+    }
+  });
+};
+
+exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      callback(content.split("\n"));
+    }
+  }); 
 };
 
 exports.isUrlInList = function(url, callback) {
   // var callback = function(result){return result}
   fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    var contentArr = content.split('\n');
     if(err){
       callback(err);
     }else{
-      if(content[url]){
+      if(_.indexOf(contentArr, url) > -1){
         callback(true);
       }else{
         callback(false);
       }
     }
-  })
-  // return callback
+  });
 };
 
-exports.addUrlToList = function(url) {
+exports.addUrlToList = function(url, callback) {
+  fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      var newContent  = content.split("\n").concat(url).join('\n');
+      fs.writeFile(exports.paths.list, newContent , "utf-8", function(err){
+        if(err){
+          callback(err);
+        } else {
+          callback();
+        }
+      });     
+    }
+  });
 };
 
-exports.isUrlArchived = function(url) {
+exports.isUrlArchived = function(url, callback) {
+  //fs.readDirectory returns an array of files in the dir
+  fs.readdir(exports.paths.archivedSites, function(err, data){
+    if(_.indexOf(data, url) > -1){
+      callback(true);
+    }else{
+      callback(false);
+    }
+  });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urlArray) {
+  //all of our dir sites
+  if(urlArray.length){
+    var url = urlArray[0];
+    fs.writeFile(exports.paths.archivedSites + '/' + url, url,  "utf-8", function(err){
+      if(err){
+        return err;
+      }else{
+        exports.downloadUrls(urlArray.slice(1));
+      }
+    });
+  }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

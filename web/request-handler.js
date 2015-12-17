@@ -20,33 +20,46 @@ exports.handleRequest = function (req, res) {
     if(url === "/"){
       fs.readFile(path.join(__dirname , "/public/index.html"), "utf-8", function(err, content){
         if(err){
-          resEnd(res, null, header, 404);
+          resEnd(res, null, 404);
         }else{
-          resEnd(res, content, header, statusCode);
+          resEnd(res, content, statusCode);
         }
       });
+    //if not root url  
     }else{
-      archive.isUrlInList(url , function(result){
-        if(result){
-          fs.readFile(exports.paths.archivedSites + url, "utf-8", function(err, content){
-            if(err){
-              callback(err);
-            }else{
-              callback(content)
-            }
-          })
-        }else{
-          archive.addUrlToList(url);
-          //archive it
-        }  
-      })
+      archive.isUrlArchived(url.slice(1), function(bool){
+        console.log(url.slice(1), "url")
+        if(!bool){
+          resEnd(res,null, 404);
+        } else {
+          console.log("URL is in archive")
+          archive.returnsArchive(url, function(content){
+            resEnd(res, content, statusCode);
+          });
+        }
+      });
+
+      // archive.isUrlInList(url , function(result){
+      //   if(result){
+      //     fs.readFile(exports.paths.archivedSites + url, "utf-8", function(err, content){
+      //       if(err){
+      //         callback(err);
+      //       }else{
+      //         callback(content)
+      //       }
+      //     })
+      //   }else{
+      //     archive.addUrlToList(url);
+      //     //archive it
+      //   }  
+      // })
     }
   }
   // res.end(archive.paths.list);
 };
 
-var resEnd = function(res, content, header, statusCode){
-  res.setHeader("content-type", "application/json")
+var resEnd = function(res, content, statusCode){
+  res.setHeader("content-type", "text/html")
   res.statusCode = statusCode
-  res.end(JSON.stringify(content))
+  res.end(content)
 }
