@@ -10,11 +10,13 @@ var url = require('url');
  * customize it in any way you wish.
  */
 
+
 exports.paths = {
   siteAssets: __dirname + '../web/public',
   archivedSites: __dirname + '../archives/sites',
   list: path.join(__dirname, '../archives/sites.txt')
 };
+
 
 // Used for stubbing paths for tests, do not modify
 exports.initialize = function(pathsObj) {
@@ -23,22 +25,122 @@ exports.initialize = function(pathsObj) {
   });
 };
 
+
+
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+exports.returnsArchive = function(url, callback){
+  fs.readFile(exports.paths.archivedSites + "/" + url, function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      callback(content);
+    }
+  });
 };
 
-exports.isUrlInList = function() {
+exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      callback(content.split("\n"));
+    }
+  }); 
 };
 
-exports.addUrlToList = function() {
+exports.isUrlInList = function(url, callback) {
+  // var callback = function(result){return result}
+  fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    var contentArr = content.split('\n');
+    if(err){
+      callback(err);
+    }else{
+      if(_.indexOf(contentArr, url) > -1){
+        callback(true);
+      }else{
+        callback(false);
+      }
+    }
+  });
 };
 
-exports.isUrlArchived = function(targetUrl) {
-	var host = url.parse(targetUrl).host;
-	console.log(host);
+
+exports.addUrlToList = function(url, callback) {
+  fs.readFile(exports.paths.list, "utf-8", function(err, content){
+    if(err){
+      callback(err);
+    }else{
+      var newContent = ""
+      if(content ===  ""){
+        newContent = url + '\n'
+      }else{        
+      newContent  = content.split("\n").concat(url + '\n').join('\n');
+      }
+      fs.writeFile(exports.paths.list, newContent , "utf-8", function(err){
+        if(err){
+          callback(err);
+        } else {
+          callback();
+        }
+      });     
+    }
+  });
 };
 
-exports.downloadUrls = function() {
+exports.isUrlArchived = function(url, callback) {
+  //fs.readDirectory returns an array of files in the dir
+  fs.readdir(exports.paths.archivedSites, function(err, data){
+    if(_.indexOf(data, url) > -1){
+      callback(true);
+    }else{
+      callback(false);
+    }
+  });
 };
+
+exports.downloadUrls = function(urlArray) {
+  //all of our dir sites
+  if(urlArray.length){
+    var url = urlArray[0];
+    fs.writeFile(exports.paths.archivedSites + '/' + url, url,  "utf-8", function(err){
+      if(err){
+        return err;
+      }else{
+        exports.downloadUrls(urlArray.slice(1));
+      }
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
