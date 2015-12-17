@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var url = require('url');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -10,8 +11,8 @@ var _ = require('underscore');
  */
 
 exports.paths = {
-  siteAssets: path.join(__dirname, '../web/public'),
-  archivedSites: path.join(__dirname, '../archives/sites'),
+  siteAssets: __dirname + '../web/public',
+  archivedSites: __dirname + '../archives/sites',
   list: path.join(__dirname, '../archives/sites.txt')
 };
 
@@ -34,7 +35,9 @@ exports.isUrlInList = function() {
 exports.addUrlToList = function() {
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(targetUrl) {
+	var host = url.parse(targetUrl).host;
+	console.log(host);
 };
 
 exports.downloadUrls = function() {
