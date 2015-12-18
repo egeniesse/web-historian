@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var url = require('url');
+var request = require("request");
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -12,8 +13,8 @@ var url = require('url');
 
 
 exports.paths = {
-  siteAssets: __dirname + '../web/public',
-  archivedSites: __dirname + '../archives/sites',
+  siteAssets: path.join(__dirname, '../web/public'),
+  archivedSites:path.join(__dirname, '../archives/sites'),
   list: path.join(__dirname, '../archives/sites.txt')
 };
 
@@ -100,12 +101,16 @@ exports.isUrlArchived = function(url, callback) {
   });
 };
 
-exports.downloadUrls = function(urlArray) {
+exports.downloadUrls = function(urlArray, body) {
   //all of our dir sites
-  if(urlArray.length){
+  if(urlArray && urlArray.length){
     var url = urlArray[0];
-    fs.writeFile(exports.paths.archivedSites + '/' + url, url,  "utf-8", function(err){
+    body = body || url;
+    console.log(body)
+    console.log('done')
+    fs.writeFile(exports.paths.archivedSites + '/' + url, body,  "utf-8", function(err){
       if(err){
+        console.log(err, "error")
         return err;
       }else{
         exports.downloadUrls(urlArray.slice(1));
@@ -113,6 +118,18 @@ exports.downloadUrls = function(urlArray) {
     });
   }
 };
+
+
+exports.scrapeWebsite = function(url, callback){
+  request("http://" + url, function(err, response, body){
+    if(!err && response.statusCode === 200){
+      callback([url], body);
+    }else{
+      callback(err);
+    }
+  });
+};
+// scrapeWebsite('www.google.com', exports.downloadUrls;
 
 
 

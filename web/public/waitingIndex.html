@@ -8,13 +8,13 @@
     $("body").on("keydown",function(key){
       if(key.keyCode === 13){
         var urlRequest = $(".input").val();
-        $(".waiting").html('Waiting for the internet to catch up.')
         $ajax({
           url: "/",
           type: "POST",
           data: urlRequest
         })
         $(".input").val("");
+        $(".waiting").html('Waiting for the internet to catch up.')
       }
   });
 });</script>
@@ -22,7 +22,7 @@
 <body>
   Enter a URL here:
   <form method="POST">
-  <p class = 'waiting'><p>
+  <p class = 'waiting'>Please wait while the internet catches up with you<p>
     <input type="input" name="url" class = "input"></input>
   </form>
 </body>
